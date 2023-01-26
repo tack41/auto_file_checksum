@@ -42,8 +42,14 @@ function ProcessFile{
         }else{
             $lastCheckSum = (-Split (Get-Content $fileInfo.FullName -Raw))[0]
             if($DebugOn){Write-Host "Last Checksum of ${sourceFilePath}: $lastCheckSum"}
-            Write-Host "Creating current checksum of $sourceFilePath ..."
+
+            $startTime = Get-Date
+            Write-Host "Creating current checksum of $sourceFilePath [$startTime] ..."
             $currentCheckSum = (certutil -hashfile $sourceFilePath sha256)[1]
+            $endTime = Get-Date
+            $elapsed = New-TimeSpan -Start $startTime -End $endTime
+            Write-Host "Creating current checksum of $sourceFilePath completed. elapsed: $elapsed"
+
             if($DebugOn){Write-Host "Current Checksum of ${sourceFilePath}: $currentCheckSum"}
             if($lastCheckSum -eq $currentCheckSum){
                 Write-Host "Checksums between last and current are matched: $sourceFilePath as $currentCheckSum"
@@ -55,8 +61,13 @@ function ProcessFile{
     }else{
         $checkSumFilePath = $fileInfo.FullName + ".sha256"
         if(-Not (Test-Path $checkSumFilePath)){
-            Write-Host "Creating current checksum of $($fileInfo.FullName) ..."
+            $startTime = Get-Date
+            Write-Host "Creating current checksum of $($fileInfo.FullName) [$startTime] ..."
             $currentCheckSum = (certutil -hashfile $fileInfo.FullName sha256)[1]
+            $endTime = Get-Date
+            $elapsed = New-TimeSpan -Start $startTime -End $endTime
+            Write-Host "Creating current checksum of $sourceFilePath completed. elapsed: $elapsed"
+
             if($DebugOn){Write-Host "Current Checksum of $($fileInfo.FullName): $currentCheckSum"}
             Write-Output "$currentCheckSum  $($fileInfo.Name)" | Out-File -FilePath $checkSumFilePath
             Write-Host "Check sum of $($fileInfo.FullName) written to ${checkSumFilePath}: $currentCheckSum"
