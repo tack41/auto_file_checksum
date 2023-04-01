@@ -36,6 +36,7 @@ function ProcessFile{
     if($DebugOn){Write-Host "File: $($fileInfo.Name)"}
     if($fileInfo.Name.EndsWith(".sha256")){
         $sourceFilePath = $fileInfo.FullName.Replace(".sha256","")
+        Write-Host "sourceFilePath: $sourceFilePath"
         if(-Not (Test-Path $sourceFilePath)){
             Write-Host "[NG] There is no file corresponding to checksum file: $sourceFile"
             $ErrorResult.Append("[NG] There is no file corresponding to checksum file: $sourceFile`n")
@@ -66,7 +67,7 @@ function ProcessFile{
             $currentCheckSum = (certutil -hashfile $fileInfo.FullName sha256)[1]
             $endTime = Get-Date
             $elapsed = New-TimeSpan -Start $startTime -End $endTime
-            Write-Host "Creating current checksum of $sourceFilePath completed. elapsed: $elapsed"
+            Write-Host "Creating current checksum of $fileInfo completed. elapsed: $elapsed"
 
             if($DebugOn){Write-Host "Current Checksum of $($fileInfo.FullName): $currentCheckSum"}
             Write-Output "$currentCheckSum  $($fileInfo.Name)" | Out-File -FilePath $checkSumFilePath
