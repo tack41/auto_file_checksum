@@ -1,6 +1,5 @@
 Param(
-    [Switch]$DebugOn,
-    [string]$targetPath
+    [Switch]$DebugOn
 )
 
 Set-StrictMode -Version latest
@@ -21,7 +20,7 @@ function SearchDirectory {
 
     if($DebugOn){Write-Host "Directory: $($directoryInfo.FullName)"}
 
-    foreach($item in Get-ChildItem $directoryInfo){
+    foreach($item in Get-ChildItem $directoryInfo.FullName){
         if($item -is [System.IO.DirectoryInfo]){
             SearchDirectory($item)
         }else{
@@ -76,17 +75,19 @@ function ProcessFile{
     }
 }
 
-if(-Not (Test-Path $targetPath)){
-    Write-Host "[NG] Specified file or directory does not exists: $targetPath"
-    $ErrorResult.Append("[NG] Specified file or directory does not exists: $targetPath`n")
-}else{
-    if($DebugOn){Write-Host "Exists: $targetPath"}
-
-    $target = Get-Item $targetPath
-    if($target -is [System.IO.DirectoryInfo]){
-        SearchDirectory($target)
+foreach($targetPath in $args){
+    if(-Not (Test-Path $targetPath)){
+        Write-Host "[NG] Specified file or directory does not exists: $targetPath"
+        $ErrorResult.Append("[NG] Specified file or directory does not exists: $targetPath`n")
     }else{
-        ProcessFile($target)
+        if($DebugOn){Write-Host "Exists: $targetPath"}
+    
+        $target = Get-Item $targetPath
+        if($target -is [System.IO.DirectoryInfo]){
+            SearchDirectory($target)
+        }else{
+            ProcessFile($target)
+        }
     }
 }
 
